@@ -2,6 +2,10 @@ import Link from 'next/link'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Badge from '@mui/material/Badge';
+import useCartCount from '../hooks/useCartCount';
+
 export default function Header(){
   const [user, setUser] = useState(null)
   const [open, setOpen] = useState(false)
@@ -24,10 +28,13 @@ export default function Header(){
 
   function logout(){
     localStorage.removeItem('user')
-    router.replace('/login')
+    router.replace('/')
+    setUser(null)
   }
 
   // Avatar upload is handled from the Account page; header only shows avatar and menu.
+
+  const cartCount = useCartCount(user?.id)
 
   return (
     <header className="bg-white border-b">
@@ -45,7 +52,11 @@ export default function Header(){
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <button className="btn-primary">Đặt hàng ngay</button>
+          <button onClick={() => router.push('/cart')}>
+            <Badge badgeContent={cartCount} color="primary">
+              <ShoppingCartIcon sx={{ fontSize: 30 }} />
+            </Badge>
+          </button>
           {user ? (
             <div className="relative" ref={ref}>
               <button onClick={()=>setOpen(!open)} className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">

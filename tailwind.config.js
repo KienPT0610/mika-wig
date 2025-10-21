@@ -6,10 +6,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'mika-pink': '#b1e4f4',
         'mika-rose': '#f4c6d6',
         'mika-deep': '#eaa6b8',
-        'mika-blue-2': '#004aad',
+        'mika-blue-100': '#b1e4f4',
+        'mika-blue': '#004aad',
       },
       fontFamily: {
         playfair: ['Playfair Display', 'serif'],

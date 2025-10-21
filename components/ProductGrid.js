@@ -1,8 +1,14 @@
 import ProductCard from './ProductCard'
 
-export default function ProductGrid(){
-  // sample items
-  const items = new Array(9).fill(0).map((_,i)=> ({ id: i+1, title: `Mika Wig ${i+1}` }))
+import { useEffect, useState } from 'react'
+
+export default function ProductGrid() {
+  const [products, setProducts] = useState([])
+  useEffect(() => {
+    fetch('/api/admin/products')
+      .then(r => r.json())
+      .then(j => setProducts(j.products || []))
+  }, [])
 
   return (
     <div>
@@ -16,9 +22,13 @@ export default function ProductGrid(){
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-6">
-        {items.map(it => (
-          <ProductCard key={it.id} title={it.title} />
-        ))}
+        {products.length === 0 ? (
+          <div className="col-span-3 text-center text-gray-400">Không có sản phẩm</div>
+        ) : (
+          products.map(p => (
+            <ProductCard key={p.id} title={p.name} image={p.image_urls?.[0]} id={p.id} price={p.price} />
+          ))
+        )}
       </div>
     </div>
   )
