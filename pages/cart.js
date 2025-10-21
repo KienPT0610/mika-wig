@@ -2,6 +2,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import logUserAction from '../lib/logUserAction'
 
 export default function Cart() {
   const router = useRouter()
@@ -48,6 +49,13 @@ export default function Cart() {
 
   const total = items.reduce((sum, it) => sum + it.price * it.quantity, 0)
 
+  function handleCheckout() {
+    if (!userId) return
+    logUserAction({ user_id: userId, action: 'checkout', details: JSON.stringify(items.map(it => ({ product_id: it.product_id, quantity: it.quantity }))) })
+    alert('Đặt hàng thành công!')
+    // Thêm logic xử lý đơn hàng thực tế nếu cần
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -90,7 +98,8 @@ export default function Cart() {
                 ))}
               </tbody>
             </table>
-            <div className="text-right text-xl font-bold">Tổng cộng: {total}₫</div>
+            <div className="text-right text-xl font-bold mb-4">Tổng cộng: {total}₫</div>
+            <button className="px-6 py-2 bg-mika-blue text-white rounded font-bold" onClick={handleCheckout}>Đặt hàng</button>
           </div>
         )}
       </main>

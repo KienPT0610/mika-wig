@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 
 import { useEffect, useState } from 'react'
+import logUserAction from '../../lib/logUserAction'
 
 export default function ProductDetail() {
   const router = useRouter()
@@ -19,6 +20,9 @@ export default function ProductDetail() {
       .then(j => {
         if (j.products && j.products.length > 0) setProduct(j.products[0])
       })
+    // Log view_product
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    logUserAction({ user_id: user.id, action: 'view_product', details: slug })
   }, [slug])
 
   useEffect(() => {
@@ -83,6 +87,8 @@ export default function ProductDetail() {
                       headers: { 'content-type': 'application/json' },
                       body: JSON.stringify({ user_id: user.id, product_id: product.id, quantity: 1 })
                     })
+                    // Log add_to_cart
+                    logUserAction({ user_id: user.id, action: 'add_to_cart', details: product.id })
                     setAdding(false)
                     if (res.ok) {
                       alert('Đã thêm vào giỏ hàng!')

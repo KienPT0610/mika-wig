@@ -28,11 +28,15 @@ export default async function handler(req, res) {
   await db.execute('UPDATE products SET category_id=?, name=?, description=?, price=?, stock=?, image_urls=? WHERE id=?', [category_id, name, description, price, stock, JSON.stringify(image_urls || []), id])
   res.status(200).json({ id })
   } else if (req.method === 'DELETE') {
-  // Delete product
-  const { id } = req.body
-  if (!id) return res.status(400).json({ error: 'Thiếu id sản phẩm' })
-  await db.execute('DELETE FROM products WHERE id=?', [id])
-  res.status(200).json({ id })
+    // Delete product
+    const { id } = req.body
+    if (!id) return res.status(400).json({ error: 'Thiếu id sản phẩm' })
+    // Xóa các bản ghi liên quan trước
+    await db.execute('DELETE FROM cart_items WHERE product_id=?', [id])
+    await db.execute('DELETE FROM user_logs WHERE details=? AND action="view_product"', [String(id)])
+    // Có thể cần xóa thêm các bảng khác nếu có liên kết FK tới products.id
+    await db.execute('DELETE FROM products WHERE id=?', [id])
+    res.status(200).json({ id })
   } else {
     res.status(405).json({ error: 'Method not allowed' })
   }

@@ -26,7 +26,7 @@ export default function ProductGrid() {
           <div className="col-span-3 text-center text-gray-400">Không có sản phẩm</div>
         ) : (
           products.map(p => (
-            <ProductCard key={p.id} title={p.name} image={p.image_urls?.[0]} id={p.id} />
+            <ProductCard key={p.id} title={p.name} image={p.image_urls?.[0]} id={p.id} price={p.price} />
           ))
         )}
       </div>
