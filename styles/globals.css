@@ -37,3 +37,16 @@
   color: #ffffff;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
+
+.swiper-pagination-bullet {
+  width: 16px !important;
+  height: 4px !important;
+  border-radius: 5px !important;
+  margin: 0 6px !important;
+}
+.swiper-pagination {
+  bottom: 2px !important;
+}
+.swiper-pagination-bullet-active {
+  background: #4F46E5 !important;
+}
