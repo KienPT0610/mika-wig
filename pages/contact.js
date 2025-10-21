@@ -6,26 +6,17 @@ export default function Contact() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-3xl mb-6">Liên hệ</h1>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h2>Thông tin</h2>
-            <ul className="space-y-2 text-gray-700">
-              <li>Zalo: +84 9xxxx</li>
-              <li>WhatsApp: +84 9xxxx</li>
-              <li>TikTok: @mika.wig</li>
-              <li>Facebook: Mika.wig</li>
-            </ul>
-          </div>
-          <div>
-            <h2>Gửi tin nhắn</h2>
-            <form className="space-y-4">
-              <input className="w-full border px-3 py-2 rounded" placeholder="Tên" />
-              <input className="w-full border px-3 py-2 rounded" placeholder="Email hoặc SĐT" />
-              <textarea className="w-full border px-3 py-2 rounded" placeholder="Nội dung" rows={4} />
-              <button className="btn-primary">Gửi</button>
-            </form>
-          </div>
+        <h1 className="text-3xl mb-6">📞 Thông tin liên hệ Mika.wig - Tóc giả Mai</h1>
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="mb-4">Nếu bạn quan tâm hoặc muốn đặt hàng, đừng ngần ngại liên hệ với chúng tôi qua các kênh sau:</p>
+          <ul className="list-disc ml-6 space-y-2 text-gray-700">
+            <li><strong>TikTok:</strong> Mai Tóc Giả</li>
+            <li><strong>Facebook:</strong> Mai Tóc Giả</li>
+            <li><strong>Email:</strong> <a href="mailto:tmai60728@gmail.com" className="text-mika-blue">tmai60728@gmail.com</a></li>
+            <li><strong>Zalo:</strong> 0787 105 263</li>
+            <li><strong>WhatsApp:</strong> +84 787 105 263</li>
+          </ul>
+          <p className="mt-4">Mika.wig – Tóc giả Mai luôn sẵn sàng lắng nghe, tư vấn và đồng hành cùng bạn trong hành trình tìm kiếm mái tóc phù hợp và tự tin nhất.</p>
         </div>
       </main>
       <Footer />

@@ -16,8 +16,18 @@ export default function Footer(){
           </div>
         </div>
         <div>
-          <h4 className="font-semibold mb-2">Liên hệ</h4>
-          <div className="text-gray-700">Zalo / WhatsApp / TikTok / Facebook</div>
+          <h4 className="font-semibold mb-2">Thông tin liên hệ Mika.wig - Tóc giả Mai</h4>
+          <div className="text-gray-700 text-sm">
+            Nếu bạn quan tâm hoặc muốn đặt hàng, đừng ngần ngại liên hệ với chúng tôi qua các kênh sau:
+            <ul className="list-disc ml-5 mt-2">
+              <li>TikTok: Mai Tóc Giả</li>
+              <li>Facebook: Mai Tóc Giả</li>
+              <li>Email: tmai60728@gmail.com</li>
+              <li>Zalo: 0787 105 263</li>
+              <li>WhatsApp: +84 787 105 263</li>
+            </ul>
+            <div className="mt-2">Mika.wig – Tóc giả Mai luôn sẵn sàng lắng nghe, tư vấn và đồng hành cùng bạn trong hành trình tìm kiếm mái tóc phù hợp và tự tin nhất</div>
+          </div>
         </div>
       </div>
       <div className="text-center py-4 text-sm text-gray-500">© {new Date().getFullYear()} Mika.wig. Bản quyền thuộc về Mika.wig</div>
