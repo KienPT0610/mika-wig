@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #__next { height: 100%; }
+  body {
+    @apply bg-white text-gray-800 font-inter;
+    line-height: 1.4;
+  }
+  h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-block px-4 py-2 rounded text-white font-medium bg-mika-blue-2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .btn-primary:hover { filter: brightness(.95); }
+  .btn-primary:focus { outline: 2px solid rgba(0,0,0,0.06); outline-offset: 2px; }
+}
+
+.fade-in { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+.fade-in.show { opacity: 1; transform: translateY(0); }

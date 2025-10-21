@@ -1,0 +1,27 @@
+{
+  "name": "mika-wig",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "@tursodatabase/sync": "^0.2.2",
+    "bcryptjs": "2.4.3",
+    "clsx": "1.2.1",
+    "jsonwebtoken": "9.0.0",
+    "next": "latest",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "sql.js": "^1.8.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "10.4.14",
+    "postcss": "8.4.24",
+    "tailwindcss": "3.4.7"
+  }
+}
