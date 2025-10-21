@@ -6,7 +6,7 @@ export default function Feedback(){
   ]
 
   return (
-    <section className="py-12 bg-mika-pink">
+    <section className="py-12 bg-mika-blue-100">
       <div className="max-w-6xl mx-auto px-6">
         <h2 className="text-2xl mb-6">Feedback</h2>
         <div className="grid md:grid-cols-3 gap-4">

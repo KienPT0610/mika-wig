@@ -24,7 +24,8 @@ export default function Header(){
 
   function logout(){
     localStorage.removeItem('user')
-    router.replace('/login')
+    router.replace('/')
+    setUser(null)
   }
 
   // Avatar upload is handled from the Account page; header only shows avatar and menu.

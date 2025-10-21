@@ -55,7 +55,7 @@ export default function Account() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-mika-pink to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-mika-blue-100 to-white">
       <Header />
       <main className="flex-grow max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-2xl font-semibold mb-6 text-center">Thông tin tài khoản</h1>
@@ -64,30 +64,51 @@ export default function Account() {
           {/* Cột trái */}
           <div className="space-y-4">
             {/* Avatar */}
-            <div className="flex items-start">
+            <div className="flex flex-col items-center mb-4">
               <div className="relative">
-                <div className="w-28 h-28 rounded-full bg-gray-100 overflow-hidden border">
+                <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 border shadow-inner">
                   {form.avatar ? (
-                    <img src={form.avatar} alt="avatar" className="w-full h-full object-cover" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={form.avatar}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl text-gray-500">
-                      {(user && user.name) ? user.name.split(' ').map(s => s[0]).slice(-2).join('') : 'U'}
+                    <div className="w-full h-full flex items-center justify-center text-xl text-gray-400">
+                      {form.name
+                        ? form.name
+                            .split(' ')
+                            .map((s) => s[0])
+                            .slice(-2)
+                            .join('')
+                        : 'U'}
                     </div>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => fileRef.current && fileRef.current.click()}
-                  className="absolute -right-1 -top-1 bg-white border rounded-full p-1 shadow text-sm"
+                  className="absolute bottom-1 right-1 bg-white border border-gray-200 rounded-full p-1 shadow hover:scale-105 transition"
                 >
-                  Chọn
+                  ✏️
                 </button>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files && e.target.files[0]
+                    if (!f) return
+                    const reader = new FileReader()
+                    reader.onload = (ev) =>
+                      setForm((prev) => ({ ...prev, avatar: ev.target.result }))
+                    reader.readAsDataURL(f)
+                  }}
+                />
               </div>
-              <div className="ml-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700">Ảnh đại diện</label>
-                <p className="text-sm text-gray-500">Bấm nút ở góc để chọn ảnh mới</p>
-              </div>
+              <p className="text-sm text-gray-500 mt-2">Ảnh đại diện</p>
             </div>
 
             {/* Họ tên */}
