@@ -1,8 +1,15 @@
+
+import React, { useEffect } from 'react'
 import { AlertProvider } from '../context/AlertContext'
 import '../styles/globals.css'
 import Head from 'next/head'
+import logUserAction from '../lib/logUserAction'
 
 export default function App({ Component, pageProps }) {
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    logUserAction({ user_id: user.id, action: 'visit' })
+  }, [])
   return (
     <>
       <Head>
