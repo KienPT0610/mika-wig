@@ -5,6 +5,8 @@ import Image from 'next/image'
 
 import { useEffect, useState } from 'react'
 import logUserAction from '../../lib/logUserAction'
+import formatCurrency from '../../lib/format'
+import { useAlert } from '../../context/AlertContext'
 
 export default function ProductDetail() {
   const router = useRouter()
@@ -12,6 +14,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null)
   const [adding, setAdding] = useState(false)
   const [mainImgIdx, setMainImgIdx] = useState(0)
+  const { showAlert } = useAlert()
 
   useEffect(() => {
     if (!slug) return
@@ -69,7 +72,7 @@ export default function ProductDetail() {
             <div>
               <h1 className="text-2xl font-playfair mb-4">{product.name}</h1>
               <p className="text-gray-700 mb-2">{product.description}</p>
-              <div className="mb-2">Giá: <span className="font-bold text-mika-blue">{product.price}₫</span></div>
+              <div className="mb-2">Giá: <span className="font-bold text-mika-blue">{formatCurrency(product.price)}</span></div>
               <div className="mb-2">Kho: {product.stock}</div>
               <div className="mb-4">Loại: {product.category_name}</div>
               <button
@@ -91,7 +94,7 @@ export default function ProductDetail() {
                     logUserAction({ user_id: user.id, action: 'add_to_cart', details: product.id })
                     setAdding(false)
                     if (res.ok) {
-                      alert('Đã thêm vào giỏ hàng!')
+                      showAlert('success', 'Đã thêm vào giỏ hàng!')
                       if (typeof window !== 'undefined') {
                         window.dispatchEvent(new Event('cart-changed'))
                       }

@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Image from 'next/image'
-import artImg from '../assets/images/image.png'
+import aboutImg from '../assets/images/about.png'
 
 export default function About() {
   return (
@@ -10,7 +10,7 @@ export default function About() {
       <main className="flex-grow max-w-4xl mx-auto px-6 py-12">
         <div className="grid gap-8 md:grid-cols-2 items-center">
           <div className="h-72 bg-gray-100 rounded-lg overflow-hidden">
-            <Image src={artImg} alt="Nghệ nhân" width={480} height={320} className="w-full h-full object-cover" />
+            <Image src={aboutImg} alt="Nghệ nhân" width={480} height={320} className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="text-3xl font-playfair mb-4">Về Mika.wig</h1>

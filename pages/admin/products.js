@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import formatCurrency from '../../lib/format'
 import { useRouter } from "next/router";
 
 export default function AdminProducts() {
@@ -218,7 +219,7 @@ export default function AdminProducts() {
                 products.map((p) => (
                   <tr key={p.id} className="border-t">
                     <td className="px-4 py-2 font-semibold">{p.name}</td>
-                    <td className="px-4 py-2">{p.price}</td>
+                    <td className="px-4 py-2">{formatCurrency(p.price)}</td>
                     <td className="px-4 py-2">{p.stock}</td>
                     <td className="px-4 py-2">
                       <div className="flex gap-2">

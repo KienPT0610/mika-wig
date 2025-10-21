@@ -2,11 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import cardImg from '../assets/images/image.png'
 
-
-function formatCurrency(n) {
-  if (isNaN(n)) return '';
-  return Number(n).toLocaleString('vi-VN') + ' VND';
-}
+import formatCurrency from '../lib/format'
 
 export default function ProductCard({ title = 'Mika Wig', image, id, price }) {
   return (
