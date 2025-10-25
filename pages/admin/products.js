@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import formatCurrency from '../../lib/format'
 import { useRouter } from "next/router";
+import AdminSideBar from "../../components/AdminSideBar";
 
 export default function AdminProducts() {
   const router = useRouter();
@@ -24,8 +25,10 @@ export default function AdminProducts() {
     }
     fetchProducts();
     fetch("/api/admin/categories")
-      .then((r) => r.json())
-      .then((j) => setCategories(j.categories || []));
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data.categories || []);
+      });
   }, []);
 
   async function fetchProducts() {
@@ -146,48 +149,7 @@ export default function AdminProducts() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-64 bg-white shadow-lg flex flex-col py-8 px-4">
-        <h1 className="text-2xl font-bold text-mika-blue mb-10 text-center">
-          Mika Admin
-        </h1>
-        <nav className="flex flex-col gap-4">
-          <a
-            href="/admin"
-            className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition"
-          >
-            Tổng quan
-          </a>
-          <a
-            href="/admin/products"
-            className="px-4 py-2 rounded-lg bg-mika-blue/10 text-mika-blue font-semibold"
-          >
-            Quản lý sản phẩm
-          </a>
-          <a
-            href="/admin/customers"
-            className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition"
-          >
-            Quản lý khách hàng
-          </a>
-          <a
-            href="/admin/stats"
-            className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition"
-          >
-            Thống kê hành động
-          </a>
-        </nav>
-        <div className="mt-auto pt-10">
-          <button
-            className="w-full bg-mika-blue text-white py-2 rounded-lg font-semibold shadow hover:bg-blue-400 transition"
-            onClick={() => {
-              localStorage.removeItem("admin");
-              router.replace("/admin/login");
-            }}
-          >
-            Đăng xuất
-          </button>
-        </div>
-      </aside>
+      <AdminSideBar active="/admin/products" />
       <main className="flex-1 py-12 px-8">
         <h2 className="text-2xl font-playfair mb-6">Quản lý sản phẩm</h2>
         <button
