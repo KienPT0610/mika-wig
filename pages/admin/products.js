@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import formatCurrency from '../../lib/format'
 import { useRouter } from "next/router";
 import AdminSideBar from "../../components/AdminSideBar";
+import { useAlert } from '../../context/AlertContext'
+import AlertType from '../../constanst/AlertType'
+import PopupConfirm from '../../components/PopupConfirm'
 
 export default function AdminProducts() {
   const router = useRouter();
@@ -14,10 +17,14 @@ export default function AdminProducts() {
     price: "",
     stock: "",
     image_urls: [],
+    variants: [],
   });
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState("");
   const [categories, setCategories] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem("admin")) {
@@ -38,15 +45,29 @@ export default function AdminProducts() {
   }
 
   function startEdit(p) {
-    setEditing(p.id);
-    setForm({
-      name: p.name,
-      category_id: p.category_id,
-      description: p.description,
-      price: p.price,
-      stock: p.stock,
-      image_urls: p.image_urls || [],
-    });
+    // fetch full product (with variants)
+    (async () => {
+      const res = await fetch(`/api/admin/products?id=${p.id}`);
+      const j = await res.json();
+      const prod = j.products && j.products.length ? j.products[0] : p;
+      setEditing(p.id);
+      setForm({
+        name: prod.name,
+        category_id: prod.category_id,
+        description: prod.description,
+        price: prod.price,
+        stock: prod.stock,
+        image_urls: prod.image_urls || [],
+        variants: (prod.variants || []).map(v => ({
+          id: v.id,
+          material: v.material || '',
+          color: v.color || '',
+          hair_length: (v.hair_length ?? v.length) != null ? String(v.hair_length ?? v.length) : '',
+          price: v.price != null ? String(v.price) : '',
+          stock: v.stock != null ? String(v.stock) : '',
+        })),
+      });
+    })();
   }
 
   function startAdd() {
@@ -58,6 +79,7 @@ export default function AdminProducts() {
       price: "",
       stock: "",
       image_urls: [],
+      variants: [],
     });
   }
 
@@ -65,7 +87,15 @@ export default function AdminProducts() {
     e.preventDefault();
     setMsg("");
     const method = editing === "new" ? "POST" : "PUT";
-    const payload = { ...form };
+    // normalize variants: convert numeric fields
+    const normalizedVariants = (form.variants || []).map(v => ({
+      material: v.material || null,
+      color: v.color || null,
+      hair_length: v.hair_length !== '' && v.hair_length != null ? Number(v.hair_length) : null,
+      price: v.price !== '' && v.price != null ? Number(v.price) : null,
+      stock: v.stock !== '' && v.stock != null ? Number(v.stock) : 0,
+    }));
+    const payload = { ...form, variants: normalizedVariants };
     if (editing !== "new") payload.id = editing;
     const res = await fetch("/api/admin/products", {
       method,
@@ -81,22 +111,51 @@ export default function AdminProducts() {
         price: "",
         stock: "",
         image_urls: [],
+        variants: [],
       });
       fetchProducts();
+      showAlert(AlertType.SUCCESS, 'Lưu sản phẩm thành công');
     } else {
       const j = await res.json();
       setMsg(j.error || "Lỗi lưu sản phẩm");
+      showAlert(AlertType.ERROR, j.error || "Lỗi lưu sản phẩm");
     }
   }
 
+  function addVariant() {
+    setForm((f) => ({
+      ...f,
+      variants: [...(f.variants || []), { material: '', color: '', hair_length: '', price: '', stock: '' }],
+    }));
+  }
+
+  function updateVariant(idx, field, value) {
+    setForm((f) => {
+      const vs = (f.variants || []).slice();
+      vs[idx] = { ...vs[idx], [field]: value };
+      return { ...f, variants: vs };
+    });
+  }
+
+  function removeVariant(idx) {
+    setForm((f) => ({ ...f, variants: (f.variants || []).filter((_, i) => i !== idx) }));
+  }
+
   async function deleteProduct(id) {
-    if (!window.confirm("Xóa sản phẩm này?")) return;
-    await fetch("/api/admin/products", {
+    const res = await fetch("/api/admin/products", {
       method: "DELETE",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ id }),
     });
-    fetchProducts();
+    if (res.ok) {
+      showAlert(AlertType.SUCCESS, 'Xóa sản phẩm thành công');
+      fetchProducts();
+    } else {
+      const j = await res.json();
+      showAlert(AlertType.ERROR, j.error || 'Lỗi xóa sản phẩm');
+    }
+    setShowConfirm(false);
+    setProductToDelete(null);
   }
 
   async function handleImageFiles(e) {
@@ -203,12 +262,12 @@ export default function AdminProducts() {
                       >
                         Sửa
                       </button>
-                      <button
-                        className="px-3 py-1 bg-red-500 text-white rounded"
-                        onClick={() => deleteProduct(p.id)}
-                      >
-                        Xóa
-                      </button>
+                        <button
+                          className="px-3 py-1 bg-red-500 text-white rounded"
+                          onClick={() => { setShowConfirm(true); setProductToDelete(p.id); }}
+                        >
+                          Xóa
+                        </button>
                     </td>
                   </tr>
                 ))
@@ -220,9 +279,10 @@ export default function AdminProducts() {
         {editing && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
             <form
-              className="bg-white rounded-lg shadow p-6 max-w-xl w-full relative"
-              onSubmit={saveProduct}
-            >
+                className="bg-white rounded-lg shadow p-6 max-w-xl w-full relative"
+                onSubmit={saveProduct}
+                style={{ maxHeight: '80vh', overflowY: 'auto' }}
+              >
               <button
                 type="button"
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
@@ -294,6 +354,25 @@ export default function AdminProducts() {
                   }
                 />
               </div>
+              {/* Variants section */}
+              <div className="mb-3">
+                <label className="block mb-1">Phiên bản</label>
+                <div className="flex flex-col gap-2">
+                  {(form.variants || []).map((v, idx) => (
+                    <div key={idx} className="flex flex-wrap gap-2 items-center">
+                      <input className="flex-1 min-w-0 border px-2 py-1 rounded" placeholder="Chất liệu" value={v.material ?? ''} onChange={(e) => updateVariant(idx, 'material', e.target.value)} />
+                      <input className="flex-1 min-w-0 border px-2 py-1 rounded" placeholder="Màu" value={v.color ?? ''} onChange={(e) => updateVariant(idx, 'color', e.target.value)} />
+                      <input className="w-24 min-w-0 border px-2 py-1 rounded" placeholder="Chiều dài" value={v.hair_length ?? ''} onChange={(e) => updateVariant(idx, 'hair_length', e.target.value)} />
+                      <input className="w-28 min-w-0 border px-2 py-1 rounded" placeholder="Giá" type="number" value={v.price ?? ''} onChange={(e) => updateVariant(idx, 'price', e.target.value)} />
+                      <input className="w-20 min-w-0 border px-2 py-1 rounded" placeholder="Kho" type="number" value={v.stock ?? ''} onChange={(e) => updateVariant(idx, 'stock', e.target.value)} />
+                      <button type="button" className="text-red-500" onClick={() => removeVariant(idx)}>X</button>
+                    </div>
+                  ))}
+                  <div>
+                    <button type="button" className="px-3 py-1 bg-gray-200 rounded" onClick={addVariant}>Thêm phiên bản</button>
+                  </div>
+                </div>
+              </div>
               <div className="mb-3">
                 <label className="block mb-1">
                   Ảnh sản phẩm (chọn nhiều ảnh từ máy tính)
@@ -342,6 +421,14 @@ export default function AdminProducts() {
               </div>
             </form>
           </div>
+        )}
+
+        {showConfirm && (
+          <PopupConfirm
+            message="Bạn có chắc chắn muốn xóa sản phẩm này?"
+            onConfirm={() => deleteProduct(productToDelete)}
+            onCancel={() => setShowConfirm(false)}
+          />
         )}
       </main>
     </div>

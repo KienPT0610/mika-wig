@@ -12,6 +12,7 @@ export default function ProductDetail() {
   const router = useRouter()
   const { slug } = router.query
   const [product, setProduct] = useState(null)
+  const [selectedVariant, setSelectedVariant] = useState(null)
   const [adding, setAdding] = useState(false)
   const [mainImgIdx, setMainImgIdx] = useState(0)
   const { showAlert } = useAlert()
@@ -30,6 +31,12 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setMainImgIdx(0)
+    // default select first variant when available
+    if (product && Array.isArray(product.variants) && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0])
+    } else {
+      setSelectedVariant(null)
+    }
   }, [product])
 
   return (
@@ -72,8 +79,27 @@ export default function ProductDetail() {
             <div>
               <h1 className="text-2xl font-playfair mb-4">{product.name}</h1>
               <p className="text-gray-700 mb-2">{product.description}</p>
-              <div className="mb-2">Giá: <span className="font-bold text-mika-blue">{formatCurrency(product.price)}</span></div>
-              <div className="mb-2">Kho: {product.stock}</div>
+              <div className="mb-2">Giá: <span className="font-bold text-mika-blue">{formatCurrency(selectedVariant && selectedVariant.price != null ? selectedVariant.price : product.price)}</span></div>
+              <div className="mb-2">Kho: {selectedVariant && selectedVariant.stock != null ? selectedVariant.stock : product.stock}</div>
+              {/* Variant selector */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-sm text-gray-600 mb-1">Chọn phiên bản</label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={selectedVariant ? selectedVariant.id : ''}
+                    onChange={(e) => {
+                      const vid = Number(e.target.value)
+                      const v = product.variants.find(x => Number(x.id) === vid)
+                      setSelectedVariant(v || null)
+                    }}
+                  >
+                    {product.variants.map(v => (
+                      <option key={v.id} value={v.id}>{`${v.material || ''}${v.color ? ' — ' + v.color : ''}${v.hair_length != null ? ' — ' + v.hair_length : ''} ${v.price != null ? ' — ' + formatCurrency(v.price) : ''}`}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="mb-4">Loại: {product.category_name}</div>
               <button
                 className={`btn-primary flex items-center gap-2 ${adding ? 'opacity-60 pointer-events-none' : ''}`}
@@ -88,10 +114,10 @@ export default function ProductDetail() {
                     const res = await fetch('/api/cart', {
                       method: 'POST',
                       headers: { 'content-type': 'application/json' },
-                      body: JSON.stringify({ user_id: user.id, product_id: product.id, quantity: 1 })
+                      body: JSON.stringify({ user_id: user.id, product_id: product.id, variant_id: selectedVariant ? selectedVariant.id : null, quantity: 1 })
                     })
-                    // Log add_to_cart
-                    logUserAction({ user_id: user.id, action: 'add_to_cart', details: product.id })
+                    // Log add_to_cart (include variant if selected)
+                    logUserAction({ user_id: user.id, action: 'add_to_cart', details: selectedVariant ? `${product.id}:${selectedVariant.id}` : String(product.id) })
                     setAdding(false)
                     if (res.ok) {
                       showAlert('success', 'Đã thêm vào giỏ hàng!')

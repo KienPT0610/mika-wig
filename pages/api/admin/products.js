@@ -11,12 +11,24 @@ export default async function handler(req, res) {
         `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id=?`,
         [id]
       );
+      // Attach variants for single product
+      if (products.rows && products.rows.length > 0) {
+        const p = products.rows[0];
+        const variantsRes = await db.execute(`SELECT * FROM product_variants WHERE product_id=? ORDER BY id ASC`, [p.id]);
+        const productObj = {
+          ...p,
+          image_urls: p.image_urls ? JSON.parse(p.image_urls) : [],
+          variants: variantsRes.rows || [],
+        };
+        return res.status(200).json({ products: [productObj] });
+      }
+      return res.status(200).json({ products: [] });
     } else {
       products = await db.execute(
         `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.created_at DESC`
       );
     }
-    // Parse image_urls JSON
+    // Parse image_urls JSON for list
     const rows = products.rows.map((p) => ({
       ...p,
       image_urls: p.image_urls ? JSON.parse(p.image_urls) : [],
@@ -25,7 +37,7 @@ export default async function handler(req, res) {
     
   } else if (req.method === "POST") {
     // Add product
-    const { category_id, name, description, price, stock, image_urls } =
+    const { category_id, name, description, price, stock, image_urls, variants } =
       req.body;
     if (!category_id || !name || !price)
       return res.status(400).json({ error: "Thiếu thông tin sản phẩm" });
@@ -41,11 +53,25 @@ export default async function handler(req, res) {
       ]
     );
     const productId = Number(result.lastInsertRowid);
+    // Insert variants if provided
+    if (Array.isArray(variants) && variants.length > 0) {
+      for (const v of variants) {
+        const material = v.material || null;
+        const color = v.color || null;
+        const hair_length = v.hair_length != null ? v.hair_length : null;
+        const vprice = v.price != null ? v.price : null;
+        const vstock = v.stock != null ? v.stock : 0;
+        await db.execute(
+          `INSERT INTO product_variants (product_id, material, color, hair_length, price, stock) VALUES (?, ?, ?, ?, ?, ?)`,
+          [productId, material, color, hair_length, vprice, vstock]
+        );
+      }
+    }
     res.status(201).json({ id: productId });
 
   } else if (req.method === "PUT") {
     // Edit product
-    const { id, category_id, name, description, price, stock, image_urls } =
+    const { id, category_id, name, description, price, stock, image_urls, variants } =
       req.body;
     if (!id) return res.status(400).json({ error: "Thiếu id sản phẩm" });
     await db.execute(
@@ -60,6 +86,21 @@ export default async function handler(req, res) {
         id,
       ]
     );
+    // Replace variants if provided
+    if (Array.isArray(variants)) {
+      await db.execute("DELETE FROM product_variants WHERE product_id=?", [id]);
+      for (const v of variants) {
+        const material = v.material || null;
+        const color = v.color || null;
+        const hair_length = v.hair_length != null ? v.hair_length : null;
+        const vprice = v.price != null ? v.price : null;
+        const vstock = v.stock != null ? v.stock : 0;
+        await db.execute(
+          `INSERT INTO product_variants (product_id, material, color, hair_length, price, stock) VALUES (?, ?, ?, ?, ?, ?)`,
+          [id, material, color, hair_length, vprice, vstock]
+        );
+      }
+    }
     res.status(200).json({ id });
 
   } else if (req.method === "DELETE") {
@@ -68,6 +109,8 @@ export default async function handler(req, res) {
     if (!id) return res.status(400).json({ error: "Thiếu id sản phẩm" });
     // Xóa các bản ghi liên quan trước
     await db.execute("DELETE FROM cart_items WHERE product_id=?", [id]);
+    // Delete variants
+    await db.execute("DELETE FROM product_variants WHERE product_id=?", [id]);
     await db.execute(
       'DELETE FROM user_logs WHERE details=? AND action="view_product"',
       [String(id)]
