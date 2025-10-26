@@ -9,6 +9,9 @@ import PopupConfirm from '../../components/PopupConfirm'
 export default function AdminProducts() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const pageSize = 10
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({
     name: "",
@@ -43,6 +46,11 @@ export default function AdminProducts() {
     const j = await res.json();
     setProducts(j.products || []);
   }
+
+  // derived
+  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const pageItems = filtered.slice((page-1)*pageSize, page*pageSize)
 
   function startEdit(p) {
     // fetch full product (with variants)
@@ -211,12 +219,18 @@ export default function AdminProducts() {
       <AdminSideBar active="/admin/products" />
       <main className="flex-1 py-12 px-8">
         <h2 className="text-2xl font-playfair mb-6">Quản lý sản phẩm</h2>
-        <button
-          className="mb-6 bg-mika-blue text-white px-4 py-2 rounded"
-          onClick={startAdd}
-        >
-          Thêm sản phẩm mới
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            className="bg-mika-blue text-white px-4 py-2 rounded"
+            onClick={startAdd}
+          >
+            Thêm sản phẩm mới
+          </button>
+          <div className="flex items-center gap-4">
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm sản phẩm..." className="border px-3 py-2 rounded w-1/3" />
+            <div className="text-sm text-gray-600">Tổng: {products.length}</div>
+          </div>
+        </div>
         {/* Product list */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <table className="min-w-full border">
@@ -230,14 +244,14 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-4 text-gray-400">
                     Không có sản phẩm
                   </td>
                 </tr>
               ) : (
-                products.map((p) => (
+                pageItems.map((p) => (
                   <tr key={p.id} className="border-t">
                     <td className="px-4 py-2 font-semibold">{p.name}</td>
                     <td className="px-4 py-2">{formatCurrency(p.price)}</td>
@@ -275,6 +289,16 @@ export default function AdminProducts() {
             </tbody>
           </table>
         </div>
+          {/* Pagination */}
+          {filtered.length > pageSize && (
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1}>Prev</button>
+              {Array.from({length: totalPages}).map((_, i) => (
+                <button key={i} className={`px-3 py-1 border rounded ${page===i+1? 'bg-mika-blue text-white':''}`} onClick={() => setPage(i+1)}>{i+1}</button>
+              ))}
+              <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page===totalPages}>Next</button>
+            </div>
+          )}
         {/* Add/Edit modal */}
         {editing && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">

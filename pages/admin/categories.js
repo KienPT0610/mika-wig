@@ -6,6 +6,9 @@ import PopupConfirm from "../../components/PopupConfirm";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const pageSize = 10
   const [form, setForm] = useState({ name: "", description: "" });
   const [editing, setEditing] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -15,6 +18,10 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const filtered = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const pageItems = filtered.slice((page-1)*pageSize, page*pageSize)
 
   const fetchCategories = async () => {
     const res = await fetch("/api/admin/categories");
@@ -75,12 +82,18 @@ export default function AdminCategoriesPage() {
         <AdminSideBar active="/admin/categories" />
         <main className="flex-1 py-12 px-8">
           <h2 className="text-2xl font-playfair mb-6">Quản lý danh mục</h2>
-          <button
-            className="mb-6 bg-mika-blue text-white px-4 py-2 rounded"
-            onClick={startAdd}
-          >
-            Thêm danh mục mới
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              className="bg-mika-blue text-white px-4 py-2 rounded"
+              onClick={startAdd}
+            >
+              Thêm danh mục mới
+            </button>
+            <div className="flex items-center gap-4">
+              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm danh mục..." className="border px-3 py-2 rounded" />
+              <div className="text-sm text-gray-600">Tổng: {categories.length}</div>
+            </div>
+          </div>
           {/* Product list */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <table className="min-w-full border">
@@ -93,14 +106,14 @@ export default function AdminCategoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {categories.length === 0 ? (
+                {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center py-4 text-gray-400">
                       Không có danh mục nào
                     </td>
                   </tr>
                 ) : (
-                  categories.map((c) => (
+                  pageItems.map((c) => (
                     <tr key={c.id} className="border-t">
                       <td className="px-4 py-2 font-semibold">{c.id}</td>
                       <td className="px-4 py-2">{c.name}</td>
@@ -125,6 +138,16 @@ export default function AdminCategoriesPage() {
               </tbody>
             </table>
           </div>
+          {/* Pagination */}
+          {filtered.length > pageSize && (
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1}>Prev</button>
+              {Array.from({length: totalPages}).map((_, i) => (
+                <button key={i} className={`px-3 py-1 border rounded ${page===i+1? 'bg-mika-blue text-white':''}`} onClick={() => setPage(i+1)}>{i+1}</button>
+              ))}
+              <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page===totalPages}>Next</button>
+            </div>
+          )}
           {/* Add/Edit modal */}
           {editing && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">

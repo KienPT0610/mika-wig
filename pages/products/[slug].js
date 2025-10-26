@@ -79,14 +79,17 @@ export default function ProductDetail() {
             <div>
               <h1 className="text-2xl font-playfair mb-4">{product.name}</h1>
               <p className="text-gray-700 mb-2">{product.description}</p>
+              <div className="mb-2">Màu tóc: {selectedVariant && selectedVariant.color ? selectedVariant.color : product.color}</div>
+              <div className="mb-2">Độ dài: {selectedVariant && selectedVariant.hair_length ? selectedVariant.hair_length : product.hair_length} cm</div>
               <div className="mb-2">Giá: <span className="font-bold text-mika-blue">{formatCurrency(selectedVariant && selectedVariant.price != null ? selectedVariant.price : product.price)}</span></div>
               <div className="mb-2">Kho: {selectedVariant && selectedVariant.stock != null ? selectedVariant.stock : product.stock}</div>
+              <div className="mb-2">Đánh giá: {product.rating != null ? product.rating : 0} / 5</div>
               {/* Variant selector */}
               {product.variants && product.variants.length > 0 && (
                 <div className="mb-4">
                   <label className="block text-sm text-gray-600 mb-1">Chọn phiên bản</label>
                   <select
-                    className="w-full border rounded px-3 py-2"
+                    className="border px-3 py-2 rounded w-full"
                     value={selectedVariant ? selectedVariant.id : ''}
                     onChange={(e) => {
                       const vid = Number(e.target.value)
@@ -95,7 +98,7 @@ export default function ProductDetail() {
                     }}
                   >
                     {product.variants.map(v => (
-                      <option key={v.id} value={v.id}>{`${v.material || ''}${v.color ? ' — ' + v.color : ''}${v.hair_length != null ? ' — ' + v.hair_length : ''} ${v.price != null ? ' — ' + formatCurrency(v.price) : ''}`}</option>
+                      <option key={v.id} value={v.id}>{`${v.material || ''} ${v.price != null ? ' — ' + formatCurrency(v.price) : ''}`}</option>
                     ))}
                   </select>
                 </div>
