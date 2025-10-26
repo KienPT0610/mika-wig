@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Header from '../../components/Header'
+import AdminSideBar from '../../components/AdminSideBar'
 
 export default function AdminCustomers() {
   const router = useRouter()
   const [users, setUsers] = useState([])
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const pageSize = 10
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ email: '', role: 'user' })
   const [msg, setMsg] = useState('')
@@ -18,6 +22,11 @@ export default function AdminCustomers() {
       .then(r => r.json())
       .then(j => setUsers(j.users || []))
   }, [])
+
+  // derived filtered / pagination
+  const filtered = users.filter(u => u.email.toLowerCase().includes(search.toLowerCase()))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const pageItems = filtered.slice((page-1)*pageSize, page*pageSize)
 
   function startEdit(u) {
     setEditing(u.id)
@@ -45,20 +54,15 @@ export default function AdminCustomers() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-64 bg-white shadow-lg flex flex-col py-8 px-4">
-        <h1 className="text-2xl font-bold text-mika-blue mb-10 text-center">Mika Admin</h1>
-        <nav className="flex flex-col gap-4">
-          <a href="/admin" className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition">Tổng quan</a>
-          <a href="/admin/products" className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition">Quản lý sản phẩm</a>
-          <a href="/admin/customers" className="px-4 py-2 rounded-lg bg-mika-blue/10 text-mika-blue font-semibold">Quản lý khách hàng</a>
-          <a href="/admin/stats" className="px-4 py-2 rounded-lg hover:bg-mika-blue/10 text-mika-blue font-semibold transition">Thống kê hành động</a>
-        </nav>
-        <div className="mt-auto pt-10">
-          <button className="w-full bg-mika-blue text-white py-2 rounded-lg font-semibold shadow hover:bg-blue-400 transition" onClick={() => { localStorage.removeItem('admin'); router.replace('/admin/login') }}>Đăng xuất</button>
-        </div>
-      </aside>
+      <AdminSideBar active="/admin/customers" />
       <main className="flex-1 py-12 px-8">
-        <h2 className="text-2xl font-playfair mb-6">Quản lý khách hàng</h2>
+        <h2 className="text-2xl font-playfair mb-6">Quản lý người dùng</h2>
+        <div className="bg-white rounded-lg shadow p-6 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Tìm kiếm email..." className="border px-3 py-2 rounded w-1/3" />
+            <div className="text-sm text-gray-600">Tổng: {users.length}</div>
+          </div>
+        </div>
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <table className="min-w-full border">
             <thead>
@@ -69,10 +73,10 @@ export default function AdminCustomers() {
               </tr>
             </thead>
             <tbody>
-              {users.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr><td colSpan={3} className="text-center py-4 text-gray-400">Không có khách hàng</td></tr>
               ) : (
-                users.map(u => (
+                pageItems.map(u => (
                   <tr key={u.id} className="border-t">
                     <td className="px-4 py-2">{u.email}</td>
                     <td className="px-4 py-2">{u.role}</td>
@@ -105,6 +109,16 @@ export default function AdminCustomers() {
               <div className="mb-3 text-red-500 text-sm">{msg}</div>
               <button className="w-full bg-mika-blue text-white py-2 rounded font-bold">Lưu</button>
             </form>
+          </div>
+        )}
+        {/* Pagination */}
+        {filtered.length > pageSize && (
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1}>Prev</button>
+            {Array.from({length: totalPages}).map((_, i) => (
+              <button key={i} className={`px-3 py-1 border rounded ${page===i+1? 'bg-mika-blue text-white':''}`} onClick={() => setPage(i+1)}>{i+1}</button>
+            ))}
+            <button className="px-3 py-1 border rounded" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page===totalPages}>Next</button>
           </div>
         )}
       </main>
