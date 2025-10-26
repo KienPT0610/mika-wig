@@ -21,7 +21,7 @@ export default function Featured() {
       <div className="max-w-6xl mx-auto px-6">
         <h2 className="text-2xl mb-6">Danh mục nổi bật</h2>
         <div className="flex gap-4 mb-8">
-          {categories.map((c) => (
+          {categories.slice(0, 4).map((c) => (
             <div key={c.id || c.name} className="px-4 py-2 border rounded">{c.name || c}</div>
           ))}
         </div>
