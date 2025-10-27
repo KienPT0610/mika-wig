@@ -51,7 +51,7 @@ export default function Header(){
             <Link href="/about">Giới thiệu</Link>
             <Link href="/products">Sản phẩm</Link>
             <Link href="/process">Quy trình</Link>
-            <Link href="#">Feedback</Link>
+            <Link href="/stories">Story</Link>
             <Link href="/guide">Hướng dẫn</Link>
             <Link href="/contact">Liên hệ</Link>
           </nav>
@@ -105,7 +105,7 @@ export default function Header(){
               <Link href="/about" className="py-2">Giới thiệu</Link>
               <Link href="/products" className="py-2">Sản phẩm</Link>
               <Link href="/process" className="py-2">Quy trình</Link>
-              <Link href="#" className="py-2">Feedback</Link>
+              <Link href="/stories" className="py-2">Story</Link>
               <Link href="/guide" className="py-2">Hướng dẫn</Link>
               <Link href="/contact" className="py-2">Liên hệ</Link>
             </div>

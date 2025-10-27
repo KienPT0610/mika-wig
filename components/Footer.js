@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import contacts from '../data/contacts';
 
 export default function Footer(){
   return (
@@ -19,12 +20,13 @@ export default function Footer(){
           <h4 className="font-semibold mb-2">Thông tin liên hệ Mika.wig - Tóc giả Mai</h4>
           <div className="text-gray-700 text-sm">
             Nếu bạn quan tâm hoặc muốn đặt hàng, đừng ngần ngại liên hệ với chúng tôi qua các kênh sau:
-            <ul className="list-disc ml-5 mt-2">
-              <li>TikTok: Mai Tóc Giả</li>
-              <li>Facebook: Mai Tóc Giả</li>
-              <li>Email: tmai60728@gmail.com</li>
-              <li>Zalo: 0787 105 263</li>
-              <li>WhatsApp: +84 787 105 263</li>
+            <ul className="mt-2">
+              {contacts.map((contact) => (
+                <li key={contact.name} className="flex items-center space-x-2 space-y-2">
+                  <contact.icon className="text-xl" />
+                  <a href={contact.url} className="hover:underline">{contact.name}: {contact.display}</a>
+                </li>
+              ))}
             </ul>
             <div className="mt-2">Mika.wig – Tóc giả Mai luôn sẵn sàng lắng nghe, tư vấn và đồng hành cùng bạn trong hành trình tìm kiếm mái tóc phù hợp và tự tin nhất</div>
           </div>

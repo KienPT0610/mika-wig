@@ -6,7 +6,7 @@ import formatCurrency from '../lib/format'
 
 export default function ProductCard({ title = 'Mika Wig', image, id, price }) {
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
       <div className="h-48 bg-white flex items-center justify-center relative">
         {image ? (
           <img src={image} alt={title} className="object-contain w-full h-full" />
@@ -20,7 +20,7 @@ export default function ProductCard({ title = 'Mika Wig', image, id, price }) {
           <div className="text-mika-blue font-bold mb-2">{formatCurrency(price)}</div>
         )}
         <p className="text-gray-600 mb-4">Chất liệu cao cấp · Tự nhiên</p>
-        <Link href={id ? `/products/${id}` : "/products/mika-wig"} className="text-mika-deep">Xem chi tiết</Link>
+        <Link href={id ? `/products/${id}` : "/products/mika-wig"} className="text-mika-blue">Xem chi tiết</Link>
       </div>
     </div>
   )
