@@ -21,13 +21,13 @@ export default function Hero() {
             Xem sản phẩm
           </Link>
         </div>
-        <div className="h-72 bg-white rounded-lg shadow flex items-center justify-center overflow-hidden">
+        <div className="h-82 bg-white rounded-lg shadow flex items-center justify-center overflow-hidden">
           <Image
             src={heroImg}
             alt="Tóc giả"
             width={520}
             height={320}
-            className="object-cover"
+            className="object-cover h-full w-full"
           />
         </div>
       </div>
