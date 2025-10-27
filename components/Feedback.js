@@ -6,11 +6,53 @@ import { useEffect, useState } from "react";
 
 export default function Feedback() {
   const [feedback, setFeedback] = useState([]);
-  useEffect(() => {
+  const [user, setUser] = useState(null)
+  const [message, setMessage] = useState('')
+  const [rating, setRating] = useState(5)
+  const [submitting, setSubmitting] = useState(false)
+
+  const fetchFeedback = () => {
     fetch("/api/feedback")
       .then((r) => r.json())
       .then((j) => setFeedback(j.feedback || []));
+  }
+
+  useEffect(() => {
+    fetchFeedback()
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || 'null')
+      if (u && u.id) setUser(u)
+    } catch (e) {
+      setUser(null)
+    }
   }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!user) return alert('Vui lòng đăng nhập để gửi phản hồi')
+    if (!message || message.trim().length === 0) return alert('Nhập nội dung phản hồi')
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, message, rating })
+      })
+      const j = await res.json()
+      if (res.ok) {
+        setMessage('')
+        setRating(5)
+        fetchFeedback()
+      } else {
+        alert(j.error || 'Lỗi khi gửi phản hồi')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Lỗi mạng')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <section className="w-full py-10 bg-gray-100">
@@ -94,6 +136,30 @@ export default function Feedback() {
             ))
           )}
         </Swiper>
+        {/* Comment form (only for logged-in users) */}
+        {user ? (
+          <div className="my-8 mx-auto">
+            <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="mb-2 text-sm text-gray-600">Gửi phản hồi của bạn</div>
+              <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4} className="w-full p-2 border rounded mb-2" placeholder="Viết cảm nhận của bạn về sản phẩm..." />
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600">Đánh giá</label>
+                <select value={rating} onChange={e => setRating(Number(e.target.value))} className="border rounded p-1">
+                  <option value={5}>5 - Tuyệt vời</option>
+                  <option value={4}>4 - Tốt</option>
+                  <option value={3}>3 - Trung bình</option>
+                  <option value={2}>2 - Kém</option>
+                  <option value={1}>1 - Rất kém</option>
+                </select>
+                <div className="ml-auto">
+                  <button type="submit" disabled={submitting} className="bg-mika-blue text-white px-4 py-2 rounded disabled:opacity-60">{submitting ? 'Đang gửi...' : 'Gửi'}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="mb-8 text-center text-sm text-gray-500">Vui lòng đăng nhập để gửi phản hồi.</div>
+        )}
       </div>
     </section>
   );
