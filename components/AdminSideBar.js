@@ -7,6 +7,7 @@ import {
   Person,
   ConnectWithoutContact
 } from '@mui/icons-material';
+import { useRouter } from 'next/router';
 
 export const nav = [
   { label: "Tổng quan", href: "/admin", icon: Dashboard },
@@ -19,6 +20,7 @@ export const nav = [
 ];
 
 export default function AdminSideBar({ active }) {
+  const router = useRouter();
   return (
     <aside className="w-64 bg-white shadow-lg flex flex-col py-8 px-4">
       <h1 className="text-2xl font-bold text-mika-blue mb-10 text-center">
