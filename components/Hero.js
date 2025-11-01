@@ -1,35 +1,32 @@
 import Link from "next/link";
 import Image from "next/image";
-import heroImg from "../assets/images/image.png";
+import heroImg from "../assets/images/image-hero.png";
 
 export default function Hero() {
   return (
-    <section className="bg-img-2 py-20">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8 items-center">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-playfair mb-4 text-hero">
-            Mika.wig — Tóc giả cao cấp
-          </h1>
-          <p className="text-lg text-hero mb-6">
-            Every Mika wig is 100% handmade by skilled artisans, crafted with
-            care and precision. We value quality, personalization, and your
-            confidence - each piece is tailored to your style for the most
-            natural look. Because to us, a wig isn’t just hair - it’s your
-            confidence.
-          </p>
-          <Link href="/products" className="inline-block btn-primary px-6 py-3">
-            Xem sản phẩm
-          </Link>
-        </div>
-        <div className="h-82 bg-white rounded-lg shadow flex items-center justify-center overflow-hidden">
-          <Image
-            src={heroImg}
-            alt="Tóc giả"
-            width={520}
-            height={320}
-            className="object-cover h-full w-full"
-          />
-        </div>
+    <section className="relative bg-img-hero min-h-screen flex items-center justify-center overflow-hidden">
+      
+      <div className="relative z-10 max-w-3xl text-center px-6">
+        <h1 className="text-5xl md:text-7xl font-playfair font-bold text-gray-900 mb-6 leading-tight drop-shadow-sm">
+          <span className="text-transparent text-hero bg-clip-text bg-gradient-to-r from-[#1a1a1a] to-[#4b4b4b]">
+            Mika.wig
+          </span>{" "}
+          <span className="text-mika-blue">— Tóc giả cao cấp</span>
+        </h1>
+
+        <p className="text-lg md:text-xl text-hero leading-relaxed mb-10 font-light">
+          Every Mika wig is <span className="font-medium text-mika-blue">100% handmade</span> by
+          skilled artisans, crafted with care and precision. We value quality, personalization,
+          and your confidence — each piece is tailored to your style for the most natural look.
+          Because to us, a wig isn’t just hair — it’s <span className="italic">your confidence.</span>
+        </p>
+
+        <Link
+          href="/products"
+          className="inline-block bg-mika-blue text-white px-10 py-4 rounded-full shadow-lg hover:bg-mika-blue/80 hover:scale-105 transform transition-all duration-300 font-medium tracking-wide"
+        >
+          Xem sản phẩm
+        </Link>
       </div>
     </section>
   );
