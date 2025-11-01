@@ -17,7 +17,7 @@ export default function Home() {
         <Feedback />
       </main>
       <Footer />
-      <ModalOrder />
+      {/* <ModalOrder /> */}
     </div>
   )
 }
