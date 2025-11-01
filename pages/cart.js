@@ -21,6 +21,9 @@ export default function Cart() {
         return
       }
       setUserId(user.id)
+      // prefill name/email from logged in user so they don't need to type them
+      setName(user.name || '')
+      setEmail(user.email || '')
       fetch(`/api/cart?user_id=${user.id}`)
         .then(r => r.json())
         .then(j => {
@@ -58,9 +61,67 @@ export default function Cart() {
 
   function handleCheckout() {
     if (!userId) return
-    logUserAction({ user_id: userId, action: 'checkout', details: JSON.stringify(items.map(it => ({ product_id: it.product_id, quantity: it.quantity }))) })
-    showAlert('success', 'Đặt hàng thành công!')
-    // Thêm logic xử lý đơn hàng thực tế nếu cần
+    // show form if not filled yet
+    setShowForm(true)
+  }
+
+  const [showForm, setShowForm] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
+  const [city, setCity] = useState('')
+  const [postalCode, setPostalCode] = useState('')
+  const [placing, setPlacing] = useState(false)
+
+  async function submitOrder() {
+    // take name/email from logged in user if available (don't require them)
+    const user = (typeof window !== 'undefined') ? JSON.parse(localStorage.getItem('user') || '{}') : {}
+    const finalName = user.name || name
+    const finalEmail = user.email || email
+    if (!phone || !address) {
+      showAlert('error', 'Vui lòng điền đủ thông tin người nhận (phone, địa chỉ)')
+      return
+    }
+    const payload = {
+      user_id: userId,
+      name: finalName,
+      email: finalEmail,
+      phone,
+      address,
+      city,
+      postal_code: postalCode,
+      currency: 'VND',
+      total,
+      items: items.map(it => ({ product_id: it.product_id, variant_id: it.variant_id || null, name: it.name, quantity: it.quantity, unit_price: Number(it.variant_price != null ? it.variant_price : it.price) }))
+    }
+    try {
+      setPlacing(true)
+      const res = await fetch('/api/orders', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+      const j = await res.json()
+      if (!res.ok) {
+        showAlert('error', j.error || 'Lỗi khi tạo đơn')
+        setPlacing(false)
+        return
+      }
+      const orderId = j.id
+      // log user action
+      logUserAction({ user_id: userId, action: 'checkout', details: JSON.stringify(payload.items) })
+      // clear cart items
+      for (const it of items) {
+        try { await fetch('/api/cart', { method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: it.id }) }) } catch (e) {}
+      }
+      setItems([])
+      setShowForm(false)
+      showAlert('success', 'Đặt hàng thành công! Mã đơn: ' + orderId)
+      // redirect to a thank you page if you have one
+      // router.push(`/order-success?id=${orderId}`)
+    } catch (err) {
+      console.error(err)
+      showAlert('error', 'Lỗi mạng khi đặt hàng')
+    } finally {
+      setPlacing(false)
+    }
   }
 
   return (
@@ -144,7 +205,43 @@ export default function Cart() {
             </div>
 
             <div className="text-right text-xl font-bold mb-4">Tổng cộng: {formatCurrency(total)}</div>
-            <button className="w-full md:inline-block md:w-auto px-6 py-2 bg-mika-blue text-white rounded font-bold" onClick={handleCheckout}>Đặt hàng</button>
+
+            {showForm ? (
+              <div className="mt-4 bg-gray-50 p-4 rounded border">
+                <h2 className="text-lg font-semibold mb-3">Thông tin người nhận</h2>
+                {/* show logged-in user's name/email (read-only) */}
+                <div className="mb-3 text-sm text-gray-700">
+                  Người mua: <span className="font-medium">{name || '—'}</span>
+                  {email ? <span className="ml-2 text-gray-500">({email})</span> : null}
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm text-gray-700">Số điện thoại</label>
+                    <input value={phone} onChange={e => setPhone(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700">Thành phố / Tỉnh</label>
+                    <input value={city} onChange={e => setCity(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-700">Địa chỉ</label>
+                    <input value={address} onChange={e => setAddress(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700">Mã bưu chính (tuỳ chọn)</label>
+                    <input value={postalCode} onChange={e => setPostalCode(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center gap-3 justify-end">
+                  <button className="px-4 py-2 bg-gray-200 rounded" onClick={() => setShowForm(false)} disabled={placing}>Hủy</button>
+                  <button className="px-4 py-2 bg-mika-blue text-white rounded font-semibold" onClick={submitOrder} disabled={placing}>{placing ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}</button>
+                </div>
+              </div>
+            ) : (
+              <button className="w-full md:inline-block md:w-auto px-6 py-2 bg-mika-blue text-white rounded font-bold" onClick={handleCheckout}>Đặt hàng</button>
+            )}
           </div>
         )}
       </main>

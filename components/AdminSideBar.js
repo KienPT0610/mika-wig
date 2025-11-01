@@ -14,7 +14,7 @@ export const nav = [
   { label: "Quản lý sản phẩm", href: "/admin/products", icon: Inventory },
   { label: "Quản lý người dùng", href: "/admin/customers", icon: Person },
   { label: "Quản lý danh mục", href: "/admin/categories", icon: Category },
-  { label: "Quản lý đánh giá", href: "/admin/reviews", icon: RateReview },
+  { label: "Quản lý phản hồi", href: "/admin/feedback", icon: RateReview },
   { label: "Quản lý đơn hàng", href: "/admin/orders", icon: ReceiptLong },
   { label: "Thống kê hành động", href: "/admin/stats", icon: ConnectWithoutContact },
 ];

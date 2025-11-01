@@ -32,9 +32,14 @@
   background-size: cover;
   background-position: center;
 }
+.bg-img-hero {
+  background-image: url('./../assets/images/image-hero.png');
+  background-size: cover;
+  background-position: center;
+}
 
 .text-hero {
-  color: #ffffff;
+  color: #000000;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 

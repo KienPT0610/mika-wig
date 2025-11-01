@@ -6,19 +6,26 @@ import { useEffect, useState } from "react";
 
 export default function Feedback() {
   const [feedback, setFeedback] = useState([]);
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState('')
   const [rating, setRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
 
-  const fetchFeedback = () => {
-    fetch("/api/feedback")
+  const limit = 5
+  const fetchFeedback = (p = 1) => {
+    fetch(`/api/feedback?limit=${limit}&page=${p}`)
       .then((r) => r.json())
-      .then((j) => setFeedback(j.feedback || []));
+      .then((j) => {
+        setFeedback(j.feedback || [])
+        setTotal(j.total || 0)
+        setPage(p)
+      });
   }
 
   useEffect(() => {
-    fetchFeedback()
+  fetchFeedback(1)
     try {
       const u = JSON.parse(localStorage.getItem('user') || 'null')
       if (u && u.id) setUser(u)
@@ -136,6 +143,12 @@ export default function Feedback() {
             ))
           )}
         </Swiper>
+          {/* pagination controls */}
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button className="px-3 py-1 border rounded" onClick={() => fetchFeedback(page - 1)} disabled={page <= 1}>‹ Prev</button>
+            <div className="text-sm text-gray-600">Trang {page} / {Math.max(1, Math.ceil(total / limit))}</div>
+            <button className="px-3 py-1 border rounded" onClick={() => fetchFeedback(page + 1)} disabled={page >= Math.ceil(total / limit)}>Next ›</button>
+          </div>
         {/* Comment form (only for logged-in users) */}
         {user ? (
           <div className="my-8 mx-auto">
